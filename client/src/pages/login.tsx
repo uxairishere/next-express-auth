@@ -15,7 +15,7 @@ export default function Login() {
         e.preventDefault();
         try {
             const res = await axios.post("http://localhost:5000/auth/api/login", { email: email, password: password });
-            if (res.status == 200) {
+            if (res.status == 200 && res.data.accessToken) {
                 setUser(res.data);
                 window.localStorage.setItem("uxairishere", JSON.stringify(res.data))
                 console.log("Local strotage data: ", window.localStorage.getItem("uxairishere"));
