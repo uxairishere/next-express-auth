@@ -8,7 +8,11 @@ const UserSchema = new mongoose.Schema({
     company : {type: String},
     profileImg: {type: String},
     createdAt: {type: Date, default: Date.now},
-    role: {type: String, default: "user"}
+    role: {type: String, default: "user"},
+    store_header: {
+        public_id: {type: String, required: true},
+        url: {type: String, required: true}
+    }
 },
 {collection: 'user-data'})
 

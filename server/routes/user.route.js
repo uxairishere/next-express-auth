@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
 const multer = require('multer')
 const UserModel = require('../models/user.model');
+const cloudinary = require('../utils/cloudinary');
 
 // middleware 
 const { authenticateToken } = require('../middlewares/authware');
@@ -39,6 +40,27 @@ router.patch('/api/update-account/:id', authenticateToken, imageUpload.single('i
     } catch (err) {
         console.log(err)
         res.send({ status: 'error', error: 'Dublicate email' })
+    }
+})
+
+// uploading header video 
+router.patch('/api/upload-video/:id', authenticateToken, async (req,res) => {
+    const {id} = req.params;
+    const { video } = req.body;
+    try {
+        const video_result = await cloudinary.uploader.upload(video, {
+            folder: store_headers
+        })
+        await UserModel.findByIdAndUpdate(id, {
+            store_header: {
+                public_id: video_result.public_id,
+                url: video_result.secure_url
+            }
+        })
+        res.status(200).json("Video uploaded successfully!");
+    } catch (error) {
+        console.log(error)
+        res.json("There has been an error while uploading video! ", error);
     }
 })
 
