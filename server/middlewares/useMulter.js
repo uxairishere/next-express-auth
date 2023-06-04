@@ -1,5 +1,7 @@
 const multer = require('multer')
 
+const memoryStorage = multer.memoryStorage(); 
+
 // config multer 
 const imageStorage = multer.diskStorage({
     // Destination to store image     
@@ -23,4 +25,6 @@ const imageUpload = multer({
     }
 });
 
-module.exports = { imageUpload }
+const singleUpload = multer({memoryStorage}).single("file");
+
+module.exports = { imageUpload, singleUpload }

@@ -8,7 +8,8 @@ const cloudinary = require('../utils/cloudinary');
 
 // middleware 
 const { authenticateToken } = require('../middlewares/authware');
-const { imageUpload } = require('../middlewares/useMulter');
+const { imageUpload, singleUpload } = require('../middlewares/useMulter');
+const { getDataUri } = require('../utils/dataURI');
 
 // get single account data 
 router.post('/api/get-account-data', authenticateToken, async (req, res) => {
@@ -31,11 +32,11 @@ router.patch('/api/update-account/:id', authenticateToken, imageUpload.single('i
     const { id } = req.params;
     const { name, email, occupation, company } = req.body;
     let profile = (req.file) ? req.file.filename : null;
-    if(profile !== null){
+    if (profile !== null) {
         await UserModel.findByIdAndUpdate(id, { profileImg: profile })
     }
     try {
-        await UserModel.findByIdAndUpdate(id, { name, email,  occupation, company})
+        await UserModel.findByIdAndUpdate(id, { name, email, occupation, company })
         res.json("Account setting updated!");
     } catch (err) {
         console.log(err)
@@ -44,25 +45,30 @@ router.patch('/api/update-account/:id', authenticateToken, imageUpload.single('i
 })
 
 // uploading header video 
-router.patch('/api/upload-video/:id', authenticateToken, async (req,res) => {
-    const {id} = req.params;
-    const { video } = req.body;
+router.patch('/api/upload-video/:id', singleUpload, async (req, res) => {
+    const { id } = req.params;
+    const file = req.file;
     try {
-        const video_result = await cloudinary.uploader.upload(video, {
-            folder: store_headers
-        })
+        if (!file) {
+            throw new Error('No file uploaded');
+        }
+        const fileUri = getDataUri(file);
+        const videoResult = await cloudinary.uploader.upload(fileUri.content, {
+            folder: 'store_headers'
+        });
+
         await UserModel.findByIdAndUpdate(id, {
             store_header: {
-                public_id: video_result.public_id,
-                url: video_result.secure_url
+                public_id: videoResult.public_id,
+                url: videoResult.secure_url
             }
-        })
+        });
+
         res.status(200).json("Video uploaded successfully!");
     } catch (error) {
-        console.log(error)
-        res.json("There has been an error while uploading video! ", error);
+        console.error(error);
+        res.status(500).json("Error uploading video: " + error.message);
     }
-})
-
+});
 
 module.exports = router;
