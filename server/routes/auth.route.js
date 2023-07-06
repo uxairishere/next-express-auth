@@ -42,27 +42,30 @@ router.delete('/api/logout', (req, res) => {
 
 // register
 router.post('/api/register', async (req, res) => {
+  try {
     const { name, email, password, company, occupation } = req.body;
-    const hashPassword = await bcrypt.hash(password, 10);
 
-    const isUser = await UserModel.findOne({ email: email });
-    if (!isUser) {
-        try {
-            await UserModel.create({
-                name: name,
-                email: email,
-                password: hashPassword,
-                company: company,
-                occupation: occupation
-            })
-            res.send({ status: 'User Created' })
-        } catch (err) {
-            console.log(err)
-            res.send({ status: 'error', error: 'Dublicate email' })
-        }
-    } else {
-        res.status(409).json("User already exists")
+    const existingUser = await UserModel.findOne({ email });
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'User already exists' });
     }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await UserModel.create({
+      name,
+      email,
+      password: hashedPassword,
+      company,
+      occupation
+    });
+
+    res.status(201).json({ status: 'User Created' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 //login

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Header from "@/components/header";
 import crystal from '../../public/assets/crystal.png'
 import { useState } from "react";

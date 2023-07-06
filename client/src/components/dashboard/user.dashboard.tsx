@@ -139,7 +139,6 @@ const UserDashboard = (props: Props) => {
                       <div className='bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg w-full h-20'></div>
                       <div className='bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg w-full h-20 opacity-50'></div>
                       <div className='bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg w-full h-20 opacity-20'></div>
-
                     </div>
                 </div>
             </div>
